@@ -1,0 +1,35 @@
+const CamaraModel = require('../models/camara.model');
+
+const getAllCamaras = async () => {
+  return await CamaraModel.getAll();
+};
+
+const getCamaraById = async (id) => {
+  const camara = await CamaraModel.findById(id);
+  if (!camara) throw { status: 404, message: 'Cámara no encontrada' };
+  return camara;
+};
+
+const createCamara = async (data) => {
+  // Aquí podrías validar que area exista, etc.
+  const id = await CamaraModel.create(data);
+  return id;
+};
+
+const updateCamara = async (id, data) => {
+  const affected = await CamaraModel.updateById(id, data);
+  if (affected === 0) throw { status: 404, message: 'Cámara no encontrada' };
+};
+
+const deleteCamara = async (id) => {
+  const affected = await CamaraModel.deleteById(id);
+  if (affected === 0) throw { status: 404, message: 'Cámara no encontrada' };
+};
+
+module.exports = {
+  getAllCamaras,
+  getCamaraById,
+  createCamara,
+  updateCamara,
+  deleteCamara
+};
