@@ -4,13 +4,14 @@ const connect = require('../config/db');
 async function findAll() {
   const db = await connect();
   const [rows] = await db.query(`
-    SELECT a.*,
-           o.nombre   AS nombre_obra,
-           u.nombres  AS nombre_supervisor,
-           u.apellidos AS apellido_supervisor
+    SELECT a.*, 
+           o.nombre AS nombre_obra,
+           GROUP_CONCAT(u.nombres) AS supervisores
     FROM area a
     JOIN obra o ON a.id_obra = o.id_obra
-    LEFT JOIN usuario u ON a.id_supervisor = u.id_usuario
+    LEFT JOIN area_supervisor asup ON a.id_area = asup.id_area
+    LEFT JOIN usuario u ON asup.id_usuario = u.id_usuario
+    GROUP BY a.id_area
   `);
   return rows;
 }
@@ -18,14 +19,15 @@ async function findAll() {
 async function findById(id) {
   const db = await connect();
   const [rows] = await db.query(`
-    SELECT a.*,
-           o.nombre   AS nombre_obra,
-           u.nombres  AS nombre_supervisor,
-           u.apellidos AS apellido_supervisor
+    SELECT a.*, 
+           o.nombre AS nombre_obra,
+           GROUP_CONCAT(u.nombres) AS supervisores
     FROM area a
     JOIN obra o ON a.id_obra = o.id_obra
-    LEFT JOIN usuario u ON a.id_supervisor = u.id_usuario
+    LEFT JOIN area_supervisor asup ON a.id_area = asup.id_area
+    LEFT JOIN usuario u ON asup.id_usuario = u.id_usuario
     WHERE a.id_area = ?
+    GROUP BY a.id_area
   `, [id]);
   return rows[0];
 }
@@ -33,14 +35,9 @@ async function findById(id) {
 async function create(data) {
   const db = await connect();
   const [result] = await db.query(`
-    INSERT INTO area (id_obra, id_supervisor, nombre, descripcion)
-    VALUES (?, ?, ?, ?)
-  `, [
-    data.id_obra,
-    data.id_supervisor || null,
-    data.nombre,
-    data.descripcion
-  ]);
+    INSERT INTO area (id_obra, nombre, descripcion)
+    VALUES (?, ?, ?)
+  `, [data.id_obra, data.nombre, data.descripcion]);
   return result.insertId;
 }
 
@@ -48,19 +45,11 @@ async function updateById(id, data) {
   const db = await connect();
   const [result] = await db.query(`
     UPDATE area
-       SET id_supervisor = ?,
-           nombre        = ?,
-           descripcion   = ?
+       SET nombre = ?, descripcion = ?
     WHERE id_area = ?
-  `, [
-    data.id_supervisor || null,
-    data.nombre,
-    data.descripcion,
-    id
-  ]);
+  `, [data.nombre, data.descripcion, id]);
   return result.affectedRows;
 }
-
 async function deleteById(id) {
   const db = await connect();
   const [result] = await db.query(

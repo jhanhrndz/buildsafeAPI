@@ -8,7 +8,9 @@ async function findAll() {
            iepp.id_reporte,
            iepp.id_epp,
            iepp.nombre        AS nombre_infraccion,
-           cat.nombre         AS categoria_nombre
+           cat.nombre         AS categoria_nombre,
+           cat.nivel_riesgo,                  
+           cat.normativa_relacionada          
     FROM infraccion_epp iepp
     JOIN categoria_epp cat ON iepp.id_epp = cat.id_epp
   `);
@@ -74,9 +76,11 @@ async function findByArea(idArea) {
            iepp.id_reporte,
            iepp.id_epp,
            iepp.nombre        AS nombre_infraccion,
-           cat.nombre         AS categoria_nombre
+           cat.nombre         AS categoria_nombre,
+           cat.nivel_riesgo,                 
+           cat.normativa_relacionada          
     FROM infraccion_epp iepp
-    JOIN reporte r    ON iepp.id_reporte = r.id_reporte
+    JOIN reporte r ON iepp.id_reporte = r.id_reporte
     JOIN categoria_epp cat ON iepp.id_epp = cat.id_epp
     WHERE r.id_area = ?
   `, [idArea]);

@@ -1,6 +1,7 @@
 // src/models/reporte.model.js
 const connect = require('../config/db');
 
+// src/models/reporte.model.js
 async function findAll() {
   const db = await connect();
   const [rows] = await db.query(`
@@ -8,14 +9,13 @@ async function findAll() {
            c.ip_stream        AS camara_ip_stream,
            a.nombre           AS nombre_area,
            o.nombre           AS nombre_obra,
-           cat.nombre         AS categoria_epp,
-           iepp.nombre        AS nombre_infraccion
+           cat.nombre         AS categoria_epp
     FROM reporte r
-    JOIN camara c            ON r.id_camara = c.id_camara
-    JOIN area a              ON r.id_area   = a.id_area
-    JOIN obra o              ON a.id_obra   = o.id_obra
-    JOIN infraccion_epp iepp ON r.id_reporte = iepp.id_reporte
-    JOIN categoria_epp cat   ON iepp.id_epp   = cat.id_epp
+    JOIN camara c    ON r.id_camara = c.id_camara
+    JOIN area a      ON r.id_area = a.id_area
+    JOIN obra o      ON a.id_obra = o.id_obra
+    LEFT JOIN infraccion_epp iepp ON r.id_reporte = iepp.id_reporte
+    LEFT JOIN categoria_epp cat   ON iepp.id_epp = cat.id_epp
   `);
   return rows;
 }
