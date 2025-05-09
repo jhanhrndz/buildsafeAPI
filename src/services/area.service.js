@@ -26,4 +26,10 @@ async function deleteArea(id) {
   if (affected === 0) throw { status: 404, message: 'Área no encontrada' };
 }
 
-module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea };
+async function getAreaByCamera(id_camara) {
+  const area = await model.getAreaByCamera(id_camara);
+  if (!area) throw { status: 404, message: 'Área no encontrada para la cámara' };
+  return area;
+}
+
+module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera };

@@ -50,6 +50,17 @@ async function updateById(id, data) {
   `, [data.nombre, data.descripcion, id]);
   return result.affectedRows;
 }
+
+// Función para obtener el área de una cámara (requerida por el servicio Python)
+async function getAreaByCamera(id_camara) {
+  const db = await connect();
+  const [rows] = await db.query(
+    'SELECT id_area FROM camara WHERE id_camara = ?',
+    [id_camara]
+  );
+  return rows[0]?.id_area;
+}
+
 async function deleteById(id) {
   const db = await connect();
   const [result] = await db.query(

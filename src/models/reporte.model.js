@@ -56,6 +56,8 @@ async function insertInfraccion({ id_reporte, id_epp, nombre }) {
     VALUES (?, ?, ?)
   `, [id_reporte, id_epp, nombre]);
 }
+
+
 async function findByArea(idArea) {
   const db = await connect();
   const [rows] = await db.query(`

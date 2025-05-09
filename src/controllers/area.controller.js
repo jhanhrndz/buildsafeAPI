@@ -18,6 +18,14 @@ async function getAreaById(req, res, next) {
     next(err);
   }
 }
+async function getAreaByCamera(req, res, next) {
+  try {
+    const area = await service.getAreaByCamera(req.params.id_camara);
+    res.json(area);
+  } catch (err) {
+    next(err);
+  }
+}
 
 async function createArea(req, res, next) {
   try {
@@ -46,4 +54,4 @@ async function deleteArea(req, res, next) {
   }
 }
 
-module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea };
+module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera };

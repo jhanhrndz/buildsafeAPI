@@ -9,6 +9,16 @@ const getAllCamaras = async (req, res, next) => {
   }
 };
 
+const getAllActive= async (req, res, next) => { 
+  
+    try {
+      const camaras = await CamaraService.getAllActive();
+      res.json(camaras);
+    } catch (err) {
+      next(err);
+    }
+  }
+
 const getCamaraById = async (req, res, next) => {
   try {
     const camara = await CamaraService.getCamaraById(req.params.id);
@@ -45,10 +55,21 @@ const deleteCamara = async (req, res, next) => {
   }
 };
 
+const updateLastConnection = async (req, res, next) => {
+  try {
+    await CamaraService.updateLastConnection(req.params.id);
+    res.json({ message: 'Última conexión actualizada' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getAllCamaras,
   getCamaraById,
   createCamara,
   updateCamara,
-  deleteCamara
+  deleteCamara,
+  updateLastConnection,
+  getAllActive
 };
