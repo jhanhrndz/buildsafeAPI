@@ -43,5 +43,6 @@ module.exports = {
   createCamara,
   updateCamara,
   deleteCamara,
-  updateLastConnection
+  updateLastConnection,
+  getAllActive
 };
