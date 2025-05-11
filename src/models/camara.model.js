@@ -1,85 +1,140 @@
-const connectToDatabase = require('../config/db');
+// src/models/camara.model.js
+const { pool } = require('../config/db');
 
 const getAllActive = async () => {
-  const db = await connectToDatabase();
-  const [rows] = await db.query(`
-    SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
-    FROM camara c
-    JOIN area a ON c.id_area = a.id_area
-    JOIN obra o ON a.id_obra = o.id_obra
-    WHERE c.estado = 'activa'
-  `);
-  return rows;
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
+      FROM camara c
+      JOIN area a ON c.id_area = a.id_area
+      JOIN obra o ON a.id_obra = o.id_obra
+      WHERE c.estado = 'activa'
+    `);
+    return rows;
+  } finally {
+    connection.release();
+  }
+};
+
+const getActiveBySupervisor = async (id_usuario) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.id_camara, c.ip_stream
+      FROM camara c
+      JOIN area_supervisor a_s ON c.id_area = a_s.id_area
+      WHERE c.estado = 'activa' AND a_s.id_usuario = ?
+    `, [id_usuario]);
+    return rows;
+  } finally {
+    connection.release();
+  }
+};
+
+const getActiveByArea = async (id_area) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.id_camara, c.ip_stream
+      FROM camara c
+      WHERE c.estado = 'activa' AND c.id_area = ?
+    `, [id_area]);
+    return rows;
+  } finally {
+    connection.release();
+  }
 };
 
 const getAll = async () => {
-  const db = await connectToDatabase();
-  const [rows] = await db.query(`
-    SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
-    FROM camara c
-    JOIN area a ON c.id_area = a.id_area
-    JOIN obra o ON a.id_obra = o.id_obra
-  `);
-  return rows;
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
+      FROM camara c
+      JOIN area a ON c.id_area = a.id_area
+      JOIN obra o ON a.id_obra = o.id_obra
+    `);
+    return rows;
+  } finally {
+    connection.release();
+  }
 };
 
 const getById = async (id) => {
-  const db = await connectToDatabase();
-  const [rows] = await db.query(`
-    SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
-    FROM camara c
-    JOIN area a ON c.id_area = a.id_area
-    JOIN obra o ON a.id_obra = o.id_obra
-    WHERE c.id_camara = ?
-  `, [id]);
-  return rows[0];
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
+      FROM camara c
+      JOIN area a ON c.id_area = a.id_area
+      JOIN obra o ON a.id_obra = o.id_obra
+      WHERE c.id_camara = ?
+    `, [id]);
+    return rows[0];
+  } finally {
+    connection.release();
+  }
 };
 
-// Cambio 1: Incluir nuevos campos en el INSERT
 const create = async ({ id_area, ip_stream, nombre, estado }) => {
-  const db = await connectToDatabase();
-  const [result] = await db.query(
-    `INSERT INTO camara 
-       (id_area, ip_stream, nombre, estado) 
-     VALUES (?, ?, ?, ?)`,
-    [id_area, ip_stream, nombre, estado || 'activa'] // Valor por defecto para estado
-  );
-  return result.insertId;
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(
+      `INSERT INTO camara 
+         (id_area, ip_stream, nombre, estado) 
+       VALUES (?, ?, ?, ?)`,
+      [id_area, ip_stream, nombre, estado || 'activa']
+    );
+    return result.insertId;
+  } finally {
+    connection.release();
+  }
 };
 
-// Cambio 2: Incluir nuevos campos en el UPDATE
 const updateById = async (id, { id_area, ip_stream, nombre, estado }) => {
-  const db = await connectToDatabase();
-  const [result] = await db.query(
-    `UPDATE camara 
-       SET id_area = ?, 
-           ip_stream = ?,
-           nombre = ?,
-           estado = ?
-     WHERE id_camara = ?`,
-    [id_area, ip_stream, nombre, estado, id]
-  );
-  return result.affectedRows;
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(
+      `UPDATE camara 
+         SET id_area = ?, 
+             ip_stream = ?,
+             nombre = ?,
+             estado = ?
+       WHERE id_camara = ?`,
+      [id_area, ip_stream, nombre, estado, id]
+    );
+    return result.affectedRows;
+  } finally {
+    connection.release();
+  }
 };
 
-// Función nueva: Actualizar última conexión
 const updateLastConnection = async (id) => {
-  const db = await connectToDatabase();
-  await db.query(
-    `UPDATE camara 
-       SET ultima_conexion = NOW() 
-     WHERE id_camara = ?`,
-    [id]
-  );
+  const connection = await pool.getConnection();
+  try {
+    await connection.query(
+      `UPDATE camara 
+         SET ultima_conexion = NOW() 
+       WHERE id_camara = ?`,
+      [id]
+    );
+  } finally {
+    connection.release();
+  }
 };
 
 const deleteById = async (id) => {
-  const db = await connectToDatabase();
-  const [result] = await db.query(
-    'DELETE FROM camara WHERE id_camara = ?',
-    [id]
-  );
-  return result.affectedRows;
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(
+      'DELETE FROM camara WHERE id_camara = ?',
+      [id]
+    );
+    return result.affectedRows;
+  } finally {
+    connection.release();
+  }
 };
 
 module.exports = {
@@ -90,4 +145,6 @@ module.exports = {
   deleteById,
   updateLastConnection,
   getAllActive,
+  getActiveByArea,
+  getActiveBySupervisor
 };

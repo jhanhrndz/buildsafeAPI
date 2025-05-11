@@ -10,7 +10,6 @@ const errorHandler               = require('../middlewares/error.middleware');
 router.use('/auth', require('./auth.routes'));
 
 // A partir de aquí todas requieren token
-router.use(authenticateToken);
 
 // CRUD principales
 router.use('/obras',        require('./obra.routes'));

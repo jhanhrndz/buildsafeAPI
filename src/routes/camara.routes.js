@@ -7,6 +7,12 @@ const { verificarRol } = require('../middlewares/verificarrol.middleware');
 // GET → Listar todas las cámaras (cualquiera autenticado)
 router.get('/', CamaraController.getAllCamaras);
 
+// Ruta nueva para cámaras activas por área
+router.get('/area/:id/activas', CamaraController.getActiveByArea);
+
+// Cámaras activas asignadas a un supervisor (por usuario)
+router.get('/supervisor/:id/activas', CamaraController.getActiveBySupervisor);
+
 // GET → Listar cámaras activas
 router.get('/activas', CamaraController.getAllActive);
 

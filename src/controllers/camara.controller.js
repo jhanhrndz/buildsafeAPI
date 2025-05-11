@@ -9,6 +9,30 @@ const getAllCamaras = async (req, res, next) => {
   }
 };
 
+const getActiveByArea = async (req, res, next) => {
+  try {
+    const id_area = parseInt(req.params.id);
+    if (isNaN(id_area)) return res.status(400).json({ message: "ID inválido" });
+
+    const cams = await CamaraService.getActiveByArea(id_area);
+    res.json(cams);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getActiveBySupervisor = async (req, res, next) => {
+  try {
+    const id_usuario = parseInt(req.params.id);
+    if (isNaN(id_usuario)) return res.status(400).json({ message: "ID inválido" });
+
+    const cameras = await CamaraService.getActiveBySupervisor(id_usuario);
+    res.json(cameras);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getAllActive= async (req, res, next) => { 
   
     try {
@@ -71,5 +95,7 @@ module.exports = {
   updateCamara,
   deleteCamara,
   updateLastConnection,
-  getAllActive
+  getAllActive,
+  getActiveByArea,
+  getActiveBySupervisor
 };

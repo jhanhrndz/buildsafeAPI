@@ -1,73 +1,109 @@
 // src/models/area.model.js
-const connect = require('../config/db');
+const { pool } = require("../config/db");
 
 async function findAll() {
-  const db = await connect();
-  const [rows] = await db.query(`
-    SELECT a.*, 
-           o.nombre AS nombre_obra,
-           GROUP_CONCAT(u.nombres) AS supervisores
-    FROM area a
-    JOIN obra o ON a.id_obra = o.id_obra
-    LEFT JOIN area_supervisor asup ON a.id_area = asup.id_area
-    LEFT JOIN usuario u ON asup.id_usuario = u.id_usuario
-    GROUP BY a.id_area
-  `);
-  return rows;
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT a.*, 
+             o.nombre AS nombre_obra,
+             GROUP_CONCAT(u.nombres) AS supervisores
+      FROM area a
+      JOIN obra o ON a.id_obra = o.id_obra
+      LEFT JOIN area_supervisor asup ON a.id_area = asup.id_area
+      LEFT JOIN usuario u ON asup.id_usuario = u.id_usuario
+      GROUP BY a.id_area
+    `);
+    return rows;
+  } finally {
+    connection.release();
+  }
 }
 
 async function findById(id) {
-  const db = await connect();
-  const [rows] = await db.query(`
-    SELECT a.*, 
-           o.nombre AS nombre_obra,
-           GROUP_CONCAT(u.nombres) AS supervisores
-    FROM area a
-    JOIN obra o ON a.id_obra = o.id_obra
-    LEFT JOIN area_supervisor asup ON a.id_area = asup.id_area
-    LEFT JOIN usuario u ON asup.id_usuario = u.id_usuario
-    WHERE a.id_area = ?
-    GROUP BY a.id_area
-  `, [id]);
-  return rows[0];
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(
+      `
+      SELECT a.*, 
+             o.nombre AS nombre_obra,
+             GROUP_CONCAT(u.nombres) AS supervisores
+      FROM area a
+      JOIN obra o ON a.id_obra = o.id_obra
+      LEFT JOIN area_supervisor asup ON a.id_area = asup.id_area
+      LEFT JOIN usuario u ON asup.id_usuario = u.id_usuario
+      WHERE a.id_area = ?
+      GROUP BY a.id_area
+    `,
+      [id]
+    );
+    return rows[0];
+  } finally {
+    connection.release();
+  }
 }
 
 async function create(data) {
-  const db = await connect();
-  const [result] = await db.query(`
-    INSERT INTO area (id_obra, nombre, descripcion)
-    VALUES (?, ?, ?)
-  `, [data.id_obra, data.nombre, data.descripcion]);
-  return result.insertId;
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(
+      `
+      INSERT INTO area (id_obra, nombre, descripcion)
+      VALUES (?, ?, ?)
+    `,
+      [data.id_obra, data.nombre, data.descripcion]
+    );
+    return result.insertId;
+  } finally {
+    connection.release();
+  }
 }
 
 async function updateById(id, data) {
-  const db = await connect();
-  const [result] = await db.query(`
-    UPDATE area
-       SET nombre = ?, descripcion = ?
-    WHERE id_area = ?
-  `, [data.nombre, data.descripcion, id]);
-  return result.affectedRows;
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query(
+      `
+      UPDATE area
+         SET nombre = ?, descripcion = ?
+      WHERE id_area = ?
+    `,
+      [data.nombre, data.descripcion, id]
+    );
+    return result.affectedRows;
+  } finally {
+    connection.release();
+  }
 }
 
-// Función para obtener el área de una cámara (requerida por el servicio Python)
 async function getAreaByCamera(id_camara) {
-  const db = await connect();
-  const [rows] = await db.query(
-    'SELECT id_area FROM camara WHERE id_camara = ?',
-    [id_camara]
-  );
-  return rows[0]?.id_area;
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(
+      "SELECT id_area FROM camara WHERE id_camara = ?",
+      [id_camara]
+    );
+    return rows[0]?.id_area;
+  } finally {
+    connection.release();
+  }
 }
 
 async function deleteById(id) {
-  const db = await connect();
-  const [result] = await db.query(
-    'DELETE FROM area WHERE id_area = ?',
-    [id]
-  );
-  return result.affectedRows;
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.query("DELETE FROM area WHERE id_area = ?", [id]);
+    return result.affectedRows;
+  } finally {
+    connection.release();
+  }
 }
 
-module.exports = { findAll, findById, create, updateById, deleteById };
+module.exports = {
+  findAll,
+  findById,
+  create,
+  updateById,
+  getAreaByCamera,
+  deleteById
+};

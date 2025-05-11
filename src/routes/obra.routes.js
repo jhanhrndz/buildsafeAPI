@@ -4,12 +4,12 @@ const { authenticateToken } = require('../middlewares/auth.middleware');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');
 
 // 1) Aplica primero el JWT a **todas** las rutas de obra
-r.use(authenticateToken);
+
 
 // 2) Rutas de solo lectura (cualquier usuario autenticado)
 r.get('/', ctrl.list);                            // SELECT * FROM obra
 r.get('/:id', ctrl.get);                          // SELECT * FROM obra WHERE id_obra = :id
-r.get('/coordinador/:id', ctrl.getByCoordinador); // SELECT * FROM obra WHERE id_coordinador = :id
+r.get('/usuario/:id', ctrl.findByUsuario); // SELECT * FROM obra WHERE id_coordinador = :id
 
 // 3) Rutas de escritura (solo coordinador global)
 r.post('/', verificarRol(['coordinador']), ctrl.create); // INSERT INTO obra ...

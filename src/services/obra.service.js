@@ -15,9 +15,11 @@ async function update(id,data) {
 async function remove(id) {
   await model.remove(id);
 }
-async function getByCoordinador(id) {
-  const o = await model.findByCoordinador(id);
-  if (!o) throw { status: 404, message: 'Obra no encontrada' };
-  return o;
+
+async function findByUsuario(userId) {
+  const obras = await model.findByUsuario(userId);
+  if (!obras) throw { status: 404, message: 'Obras no encontradas' };
+  return obras;
 }
-module.exports = { list, get, create, update, remove, getByCoordinador };
+
+module.exports = { list, get, create, update, remove, findByUsuario };

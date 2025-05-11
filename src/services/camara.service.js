@@ -14,7 +14,17 @@ const getAllActive = async () => {
   return await CamaraModel.getAllActive();
 };
 
+const getActiveByArea = async (id_area) => {
+  const camaras = await CamaraModel.getActiveByArea(id_area);
+  if (!camaras) throw { status: 404, message: 'Cámara no encontrada' };
+  return camaras;
+}
 
+const getActiveBySupervisor = async (id_usuario) => {
+  const camaras = await CamaraModel.getActiveBySupervisor(id_usuario);
+  if (!camaras) throw { status: 404, message: 'Cámara no encontrada' };
+  return camaras;
+} 
 
 const createCamara = async (data) => {
   // Aquí podrías validar que area exista, etc.
@@ -44,5 +54,7 @@ module.exports = {
   updateCamara,
   deleteCamara,
   updateLastConnection,
-  getAllActive
+  getAllActive,
+  getActiveByArea,
+  getActiveBySupervisor
 };

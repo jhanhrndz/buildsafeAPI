@@ -39,11 +39,13 @@ async function remove(req, res, next) {
   }
 }
 
-async function getByCoordinador(req, res, next) {
+async function findByUsuario(req, res, next) {
   try {
-    res.json(await svc.getByCoordinador(req.params.id));
+    const obras = await svc.findByUsuario(req.params.id);
+    res.json(obras);
   } catch (e) {
     next(e);
   }
 }
-module.exports = { list, get, create, update, remove, getByCoordinador };
+
+module.exports = { list, get, create, update, remove, findByUsuario };

@@ -13,7 +13,7 @@ const firebaseConfig = {
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
   }),
 };
 if (!admin.apps.length) admin.initializeApp(firebaseConfig);
@@ -43,7 +43,8 @@ async function login(req, res, next) {
 // En loginGoogle
 async function loginGoogle(req, res, next) {
   try {
-    const { token, user } = await svcGoogle(req.body.firebaseToken);
+    const { token: firebaseToken } = req.body; // Extrae el token del body
+    const { token, user } = await authService.loginWithGoogle(firebaseToken);
     res.json({ token, user });
   } catch (err) {
     next(err);

@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const admin = require("firebase-admin");
 const usuarioModel = require("../models/usuario.model");
-
+const { pool } = require("../config/db");
 
 // Registro local
 async function registerLocal({
@@ -38,51 +38,109 @@ async function loginLocal(usuario, contrasena) {
   return { token, user: payload };
 }
 
+async function verifyFirebaseToken(firebaseToken) {
+  // Validación crítica: asegura que el token sea una cadena no vacía
+  if (!firebaseToken || typeof firebaseToken !== "string") {
+    throw { 
+      status: 400, 
+      message: "Token no proporcionado o formato inválido" 
+    };
+  }
+
+  try {
+    const decoded = await admin.auth().verifyIdToken(firebaseToken);
+    return decoded;
+  } catch (error) {
+    console.error("Error verificando token:", error.message);
+    throw { 
+      status: 401, 
+      message: "Token de Firebase inválido o expirado",
+      details: error.message 
+    };
+  }
+}
 
 // Login con Firebase ID Token (Google/Firebase)
 async function loginWithGoogle(firebaseToken) {
-  const decoded = await admin.auth().verifyIdToken(firebaseToken);
+  const decoded = await verifyFirebaseToken(firebaseToken);
   const { uid, email, name, picture } = decoded;
 
-  // Buscar o crear usuario en MySQL
-  let user = await usuarioModel.findByGoogleId(uid)
-          || await usuarioModel.findByEmail(email);
-
-  if (!user) {
-    // Nuevo usuario
-    const [primerNombre, ...resto] = name.split(" ");
-    const nuevo = {
-      usuario: email,
-      documento: "",
-      nombres: primerNombre,
-      apellidos: resto.join(" "),
-      correo: email,
-      googleId: uid,
-      global_role: "supervisor", // o 'coordinador' por defecto
-    };
-    const id_usuario = await usuarioModel.createGoogle(nuevo);
-    user = await usuarioModel.findById(id_usuario);
-  } else if (!user.google_id) {
-    // Asocia google_id si vino por email
-    await usuarioModel.updateGoogleId(user.id_usuario, uid);
+  // Validar campos esenciales
+  if (!email || !uid) {
+    throw { status: 400, message: "El token no contiene información válida" };
   }
 
-  const payload = { id: user.id_usuario, role: user.global_role };
-  const token   = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "8h" });
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
 
-  return {
-    token,
-    user: {
-      id_usuario: user.id_usuario,
-      usuario:     user.usuario,
-      documento:   user.documento || "",
-      nombres:     user.nombres,
-      apellidos:   user.apellidos,
-      correo:      user.correo,
-      global_role: user.global_role,
-      auth_provider: "google",
+    // Buscar usuario existente
+    let user = await usuarioModel.findByGoogleId(uid);
+    if (!user) {
+      user = await usuarioModel.findByEmail(email);
     }
-  };
+
+    // Caso: Usuario existe pero sin vinculación a Google
+    if (user && !user.google_id) {
+      const existingLocalUser = await usuarioModel.findByEmail(email);
+      if (existingLocalUser) {
+        throw { 
+          status: 409, 
+          message: "El correo ya está registrado con otro método de autenticación" 
+        };
+      }
+      await usuarioModel.updateGoogleId(user.id_usuario, uid);
+    }
+
+    // Caso: Nuevo usuario
+    if (!user) {
+      const [primerNombre, ...resto] = name.split(" ") || ["Usuario", "Sin Nombre"];
+      const nuevoUsuario = {
+        usuario: email || `user_${uid.slice(0, 8)}`, // Fallback si no hay email
+        documento: null, // No requerido para Google
+        nombres: primerNombre,
+        apellidos: resto.join(" ") || " ",
+        correo: email,
+        googleId: uid,
+        global_role: "supervisor", // Rol por defecto configurable desde ENV
+      };
+      
+      const idUsuario = await usuarioModel.createGoogle(nuevoUsuario);
+      user = await usuarioModel.findById(idUsuario);
+    }
+
+    // Generar JWT
+    const payload = { 
+      id: user.id_usuario, 
+      role: user.global_role,
+      provider: "google" 
+    };
+    const token = jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "4h" } // Configurable
+    );
+
+    await connection.commit();
+    
+    return {
+      token,
+      user: {
+        id_usuario: user.id_usuario,
+        usuario: user.usuario,
+        nombres: user.nombres,
+        apellidos: user.apellidos,
+        correo: user.correo,
+        global_role: user.global_role,
+        auth_provider: "google",
+      }
+    };
+  } catch (error) {
+    await connection.rollback();
+    throw error; // Re-lanzar para manejar en el controlador
+  } finally {
+    connection.release();
+  }
 }
 
 module.exports = { registerLocal, loginLocal, loginWithGoogle };
