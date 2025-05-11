@@ -27,4 +27,10 @@ async function getReportesByArea(idArea) {
   return list;
 }
 
-module.exports = { getAllReportes, getReporteById, createReporte, getReportesByArea };
+async function getReportesByObra(idObra) {
+  const list = await model.getByObra(idObra);
+  if (!list.length) throw { status: 404, message: 'No hay reportes en esa obra' };
+  return list;
+}
+
+module.exports = { getAllReportes, getReporteById, createReporte, getReportesByArea, getReportesByObra };

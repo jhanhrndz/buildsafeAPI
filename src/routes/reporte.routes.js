@@ -9,5 +9,6 @@ router.get('/:id', ReporteController.getReporteById);
 // Crear reporte (coordinador)
 router.post('/', ReporteController.createReporte);
 router.get('/area/:id', ReporteController.getReportesByArea);
+router.get('/obra/:obraId', ReporteController.getReportesByObra);
 
 module.exports = router;

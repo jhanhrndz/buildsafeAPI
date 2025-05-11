@@ -3,17 +3,17 @@ const ctrl = require('../controllers/obra.controller');
 const { authenticateToken } = require('../middlewares/auth.middleware');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');
 
-// todas requieren token
-//r.use(authenticateToken);  verificarRol('coordinador'),
+// 1) Aplica primero el JWT a **todas** las rutas de obra
+r.use(authenticateToken);
 
-// listar/obtener: cualquiera autenticado
-r.get('/', ctrl.list);
-r.get('/:id', ctrl.get);
+// 2) Rutas de solo lectura (cualquier usuario autenticado)
+r.get('/', ctrl.list);                            // SELECT * FROM obra
+r.get('/:id', ctrl.get);                          // SELECT * FROM obra WHERE id_obra = :id
+r.get('/coordinador/:id', ctrl.getByCoordinador); // SELECT * FROM obra WHERE id_coordinador = :id
 
-// crear/editar/eliminar: solo coordinador global
-r.post('/',  ctrl.create);
-r.put('/:id', ctrl.update);
-r.delete('/:id', ctrl.remove);
-r.get('/coordinador/:id', ctrl.getByCoordinador);
+// 3) Rutas de escritura (solo coordinador global)
+r.post('/', verificarRol(['coordinador']), ctrl.create); // INSERT INTO obra ...
+r.put('/:id', verificarRol(['coordinador']), ctrl.update); // UPDATE obra SET ... WHERE id_obra = :id
+r.delete('/:id', verificarRol(['coordinador']), ctrl.remove); // DELETE FROM obra WHERE id_obra = :id
 
 module.exports = r;

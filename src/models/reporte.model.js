@@ -77,4 +77,22 @@ async function findByArea(idArea) {
   `, [idArea]);
   return rows;
 }
-module.exports = { findAll, findById, insertReporte, insertInfraccion, findByArea };
+
+const getByObra = async (req, res) => {
+    try {
+        const obraId = req.params.obraId;
+        const [reportes] = await db.query(`
+            SELECT r.* 
+            FROM reporte r
+            JOIN area a ON r.id_area = a.id_area
+            WHERE a.id_obra = ?
+        `, [obraId]);
+        
+        res.json(reportes);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener reportes' });
+    }
+};
+
+
+module.exports = { findAll, findById, insertReporte, insertInfraccion, findByArea, getByObra };

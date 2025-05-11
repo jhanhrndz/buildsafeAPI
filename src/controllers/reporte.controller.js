@@ -66,4 +66,14 @@ async function getReportesByArea(req, res, next) {
     next(err);
   }
 }
-module.exports = { getAllReportes, getReporteById, createReporte, getReportesByArea };
+
+async function getReportesByObra(req, res, next) {
+  try {
+    const list = await ReporteModel.getByObra(req.params.id);
+    res.json(list);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getAllReportes, getReporteById, createReporte, getReportesByArea, getReportesByObra };

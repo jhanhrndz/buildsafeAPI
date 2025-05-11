@@ -1,32 +1,57 @@
 const authService = require('../services/auth.service');
+const bcrypt = require("bcrypt");
+const admin = require("firebase-admin");
+const {
+  registerLocal: svcRegister,
+  loginLocal:    svcLogin,
+  loginWithGoogle: svcGoogle
+} = require("../services/auth.service"); // Lo ideal es separar lógica en servicios
 
+
+// ---- Inicialización de Firebase Admin (sólo una vez) ----
+const firebaseConfig = {
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  }),
+};
+if (!admin.apps.length) admin.initializeApp(firebaseConfig);
+// ---------------------------------------------------------
+
+
+// Registro local
 async function register(req, res, next) {
   try {
-    const id = await authService.registerLocal(req.body);
-    res.status(201).json({ id });
+    const id_usuario = await svcRegister(req.body);
+    res.status(201).json({ id_usuario });
   } catch (err) {
     next(err);
   }
 }
 
+// POST /auth/login
 async function login(req, res, next) {
   try {
-    const { usuario, contrasena } = req.body;
-    const result = await authService.loginLocal(usuario, contrasena);
-    res.json(result);
+    const { token, user } = await svcLogin(req.body.usuario, req.body.contrasena);
+    res.json({ token, user });
   } catch (err) {
     next(err);
   }
 }
 
+// En loginGoogle
 async function loginGoogle(req, res, next) {
   try {
-    const { id_token } = req.body;
-    const result = await authService.loginWithGoogle(id_token);
-    res.json(result);
+    const { token, user } = await svcGoogle(req.body.firebaseToken);
+    res.json({ token, user });
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { register, login, loginGoogle };
+module.exports = {
+  register,
+  login,
+  loginGoogle,
+};

@@ -9,7 +9,13 @@ const apiRoutes = require('./src/routes/api.routes');
 const app = express();
 
 // 📦 Middlewares globales
-app.use(cors());                        // Permitir CORS
+app.use(cors(
+  {
+  origin: 'http://localhost:5173', // URL de tu frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}
+));                        // Permitir CORS
 app.use(express.json());                // Parsear JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parsear URL-encoded bodies
 app.use(morgan('dev'));                 // Logs HTTP (opcional)

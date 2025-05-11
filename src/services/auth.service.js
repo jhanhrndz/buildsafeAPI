@@ -1,9 +1,8 @@
-const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const admin = require("firebase-admin");
 const usuarioModel = require("../models/usuario.model");
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Registro local
 async function registerLocal({
@@ -16,18 +15,11 @@ async function registerLocal({
   telefono,
   global_role,
 }) {
-  const exists = await usuarioModel.findByUsername(usuario);
-  if (exists) throw { status: 409, message: "Usuario ya existe" };
-  const hash = await bcrypt.hash(contrasena, 10);
+  // crea y retorna el id
   const id = await usuarioModel.createLocal({
     usuario,
-    hash,
-    documento,
-    nombres,
-    apellidos,
-    correo,
-    telefono,
-    global_role,
+    hash: await bcrypt.hash(contrasena, 10),
+    documento, nombres, apellidos, correo, telefono, global_role
   });
   return id;
 }
@@ -35,44 +27,62 @@ async function registerLocal({
 // Login local
 async function loginLocal(usuario, contrasena) {
   const user = await usuarioModel.findByUsername(usuario);
-  if (!user) throw { status: 401, message: "Credenciales inválidas" };
+  if (!user) throw { status: 401, message: "Usuario no encontrado" };
   const ok = await bcrypt.compare(contrasena, user.contrasena_hashed);
   if (!ok) throw { status: 401, message: "Credenciales inválidas" };
+
   const payload = { id: user.id_usuario, role: user.global_role };
-  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "8h" });
+  const token   = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "8h" });
+
+  // Devuelve también datos mínimos de usuario
   return { token, user: payload };
 }
 
-// Login Google
-async function loginWithGoogle(idToken) {
-  const ticket = await googleClient.verifyIdToken({
-    idToken,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  const { sub: googleId, email, given_name, family_name } = ticket.getPayload();
 
-  let user = await usuarioModel.findByGoogleId(googleId);
+// Login con Firebase ID Token (Google/Firebase)
+async function loginWithGoogle(firebaseToken) {
+  const decoded = await admin.auth().verifyIdToken(firebaseToken);
+  const { uid, email, name, picture } = decoded;
+
+  // Buscar o crear usuario en MySQL
+  let user = await usuarioModel.findByGoogleId(uid)
+          || await usuarioModel.findByEmail(email);
+
   if (!user) {
-    user = await usuarioModel.findByEmail(email);
-    if (user) {
-      await usuarioModel.updateGoogleId(user.id_usuario, googleId);
-    }
-  }
-  if (!user) {
-    const newId = await usuarioModel.createGoogle({
+    // Nuevo usuario
+    const [primerNombre, ...resto] = name.split(" ");
+    const nuevo = {
       usuario: email,
       documento: "",
-      nombres: given_name,
-      apellidos: family_name,
+      nombres: primerNombre,
+      apellidos: resto.join(" "),
       correo: email,
-      googleId,
-      global_role: "coordinador", // o 'supervisor'
-    });
-    user = { id_usuario: newId, global_role: "coordinador" };
+      googleId: uid,
+      global_role: "supervisor", // o 'coordinador' por defecto
+    };
+    const id_usuario = await usuarioModel.createGoogle(nuevo);
+    user = await usuarioModel.findById(id_usuario);
+  } else if (!user.google_id) {
+    // Asocia google_id si vino por email
+    await usuarioModel.updateGoogleId(user.id_usuario, uid);
   }
+
   const payload = { id: user.id_usuario, role: user.global_role };
-  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "8h" });
-  return { token, user: payload };
+  const token   = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "8h" });
+
+  return {
+    token,
+    user: {
+      id_usuario: user.id_usuario,
+      usuario:     user.usuario,
+      documento:   user.documento || "",
+      nombres:     user.nombres,
+      apellidos:   user.apellidos,
+      correo:      user.correo,
+      global_role: user.global_role,
+      auth_provider: "google",
+    }
+  };
 }
 
 module.exports = { registerLocal, loginLocal, loginWithGoogle };
