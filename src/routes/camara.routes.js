@@ -11,7 +11,6 @@ router.get('/', CamaraController.getAllCamaras);
 router.get('/area/:id/activas', CamaraController.getActiveByArea);
 
 // Cámaras activas asignadas a un supervisor (por usuario)
-router.get('/supervisor/:id/activas', CamaraController.getActiveBySupervisor);
 
 // GET → Listar cámaras activas
 router.get('/activas', CamaraController.getAllActive);
@@ -20,12 +19,12 @@ router.get('/activas', CamaraController.getAllActive);
 router.get('/:id', CamaraController.getCamaraById);
 
 // POST → Crear cámara (solo coordinador)
-router.post('/', verificarRol(['coordinador']), CamaraController.createCamara);
+router.post('/', CamaraController.createCamara);
 
 // PUT → Actualizar cámara (solo coordinador)
-router.put('/:id', verificarRol(['coordinador']), CamaraController.updateCamara);
+router.put('/:id',  CamaraController.updateCamara);
 
 // DELETE → Eliminar cámara (solo coordinador)
-router.delete('/:id', verificarRol(['coordinador']), CamaraController.deleteCamara);
+router.delete('/:id', CamaraController.deleteCamara);
 
 module.exports = router;

@@ -4,7 +4,6 @@ const router = express.Router();
 const notifController = require('../controllers/notification.controller');
 const { authenticateToken } = require('../middlewares/auth.middleware');
 
-router.use(authenticateToken);
 
 // GET /notifications
 router.get('/', notifController.getNotifications);

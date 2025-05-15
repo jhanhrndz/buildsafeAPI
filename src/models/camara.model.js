@@ -41,6 +41,9 @@ const getActiveByArea = async (id_area) => {
       WHERE c.estado = 'activa' AND c.id_area = ?
     `, [id_area]);
     return rows;
+  } catch (error) {
+    console.error("Error en getActiveByArea:", error.message);
+    throw error; // Propaga el error para manejarlo en el controlador
   } finally {
     connection.release();
   }

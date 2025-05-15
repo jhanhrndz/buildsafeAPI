@@ -5,7 +5,7 @@ const getAllCamaras = async () => {
 };
 
 const getCamaraById = async (id) => {
-  const camara = await CamaraModel.findById(id);
+  const camara = await CamaraModel.getById(id);
   if (!camara) throw { status: 404, message: 'Cámara no encontrada' };
   return camara;
 };
