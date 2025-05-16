@@ -54,4 +54,19 @@ async function deleteArea(req, res, next) {
   }
 }
 
-module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera };
+async function updateSupervisorArea(req, res, next) {
+  try {
+    const { id_area } = req.params;
+    const { id_usuario } = req.body; // 👈 Obtener desde el body
+
+    if (!id_usuario) {
+      throw { status: 400, message: "Falta id_usuario en el body" };
+    }
+
+    await service.updateSupervisorArea(id_area, id_usuario);
+    res.json({ message: 'Supervisor de área actualizado' });
+  } catch (err) {
+    next(err);
+  }
+}
+module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera, updateSupervisorArea };

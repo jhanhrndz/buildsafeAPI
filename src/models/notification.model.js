@@ -49,6 +49,8 @@ async function insertNotification({ obra_id, area_id = null, user_id = null, men
   }
 }
 
+
+
 async function markAsRead(ids) {
   if (!Array.isArray(ids) || ids.length === 0) return 0;
 

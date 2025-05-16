@@ -8,6 +8,7 @@ const { verificarRol }      = require('../middlewares/verificarrol.middleware');
 // 2) Listar/Ver áreas → coordinador o supervisor (cualquiera autenticado)
 router.get('/', ctrl.getAllAreas);
 router.get('/:id', ctrl.getAreaById);
+router.put('/:id_area/supervisor', ctrl.updateSupervisorArea);
 
 // 3) Crear/Editar/Borrar → sólo coordinador global
 router.post('/',  verificarRol(['coordinador']), ctrl.createArea);

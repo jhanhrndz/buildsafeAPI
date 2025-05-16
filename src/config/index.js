@@ -7,5 +7,5 @@ module.exports = {
     user: process.env.DB_USER,
   },
   jwtSecret: process.env.JWT_SECRET,
-  pythonUrl: process.env.PYTHON_URL
+  pythonUrl: process.env.PYTHON_URL || 'http://localhost:5000'
 };

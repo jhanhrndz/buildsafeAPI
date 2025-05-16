@@ -98,6 +98,55 @@ async function deleteById(id) {
     connection.release();
   }
 }
+async function updateSupervisorArea(id_area, id_usuario) {
+  const connection = await pool.getConnection();
+  try {
+    // Verificar si ya existe un supervisor para el área
+    const [existing] = await connection.query(
+      `SELECT * FROM area_supervisor WHERE id_area = ?`,
+      [id_area]
+    );
+
+    let result;
+    if (existing.length > 0) {
+      // Actualizar supervisor existente
+      [result] = await connection.query(
+        `UPDATE area_supervisor 
+         SET id_usuario = ? 
+         WHERE id_area = ?`,
+        [id_usuario, id_area]
+      );
+    } else {
+      // Insertar nuevo supervisor
+      [result] = await connection.query(
+        `INSERT INTO area_supervisor (id_area, id_usuario) 
+         VALUES (?, ?)`,
+        [id_area, id_usuario]
+      );
+    }
+
+    return result.affectedRows;
+  } finally {
+    connection.release();
+  }
+}
+
+async function getAreasConSupervisor(obraId) {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(
+      `SELECT a.*, u.nombres AS nombre_supervisor 
+       FROM area a
+       LEFT JOIN usuario u ON a.id_supervisor = u.id_usuario
+       WHERE a.id_obra = ?`,
+      [obraId]
+    );
+    return rows;
+  } finally {
+    connection.release();
+  }
+}
+
 
 module.exports = {
   findAll,
@@ -105,5 +154,6 @@ module.exports = {
   create,
   updateById,
   getAreaByCamera,
-  deleteById
+  deleteById,
+  updateSupervisorArea,
 };

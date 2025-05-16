@@ -37,6 +37,46 @@ async function findByUsuario(userId) {
   }
 }
 
+// En obra.model.js
+async function getUsuariosByObraId(obraId) {
+  const connection = await pool.getConnection();
+  try {
+    // 1. Obtener coordinador desde la tabla 'obra'
+    const [coordinador] = await connection.query(
+      `SELECT 
+        u.id_usuario,
+        u.nombres,
+        u.apellidos,
+        u.correo,
+        u.global_role 
+       FROM obra o 
+       JOIN usuario u ON o.id_coordinador = u.id_usuario 
+       WHERE o.id_obra = ?`,
+      [obraId]
+    );
+
+    // 2. Obtener usuarios vinculados (supervisores/invitados)
+    const [usuarios] = await connection.query(
+      `SELECT 
+        u.id_usuario,
+        u.nombres,
+        u.apellidos,
+        u.correo,
+        ou.role 
+       FROM obra_usuario ou
+       JOIN usuario u ON ou.id_usuario = u.id_usuario
+       WHERE ou.id_obra = ? AND ou.role != 'coordinador'`,
+      [obraId]
+    );
+
+    return {
+      coordinador: coordinador[0] || null,
+      usuarios: usuarios
+    };
+  } finally {
+    connection.release();
+  }
+}
 async function create(data) {
   const connection = await pool.getConnection();
   try {
@@ -74,11 +114,35 @@ async function remove(id) {
   }
 }
 
+async function getUsuariosByRol(obraId, rol) {
+  const connection = await pool.getConnection();
+  try {
+    const query = rol 
+      ? `SELECT u.* FROM obra_usuario ou 
+         JOIN usuario u ON ou.id_usuario = u.id_usuario 
+         WHERE ou.id_obra = ? AND ou.role = ?`
+      : `SELECT u.* FROM obra_usuario ou 
+         JOIN usuario u ON ou.id_usuario = u.id_usuario 
+         WHERE ou.id_obra = ?`;
+
+    const [rows] = await connection.query(
+      query, 
+      rol ? [obraId, rol] : [obraId]
+    );
+    
+    return rows;
+  } finally {
+    connection.release();
+  }
+}
+
 module.exports = {
   findAll,
   findById,
   create,
   update,
   remove,
-  findByUsuario
+  findByUsuario,
+  getUsuariosByObraId,
+  getUsuariosByRol,
 };

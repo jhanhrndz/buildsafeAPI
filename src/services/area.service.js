@@ -32,4 +32,22 @@ async function getAreaByCamera(id_camara) {
   return area;
 }
 
-module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera };
+async function updateSupervisorArea(id_area, id_usuario) {
+  // Validar que el usuario exista
+  const user = await model.findById(id_usuario);
+  if (!user) {
+    throw { status: 404, message: "Usuario no encontrado" };
+  }
+
+  // Validar que el área exista
+  const area = await model.findById(id_area);
+  if (!area) {
+    throw { status: 404, message: "Área no encontrada" };
+  }
+
+  const affected = await model.updateSupervisorArea(id_area, id_usuario);
+  if (affected === 0) {
+    throw { status: 500, message: "Error al actualizar supervisor" };
+  }
+}
+module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera, updateSupervisorArea };

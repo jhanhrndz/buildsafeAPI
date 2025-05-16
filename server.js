@@ -3,6 +3,7 @@ require('dotenv').config();             // Carga variables de .env
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require("path");
 
 const apiRoutes = require('./src/routes/api.routes');
 

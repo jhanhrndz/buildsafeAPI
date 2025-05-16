@@ -108,4 +108,22 @@ const getByObra = async (req, res) => {
   }
 };
 
+
+async function getReportesConEPPByArea(idArea) {
+  const db = await pool.getConnection();
+  try {
+    const [rows] = await db.query(
+      `SELECT r.*, GROUP_CONCAT(ie.nombre) AS infracciones 
+       FROM reporte r
+       LEFT JOIN infraccion_epp ie ON r.id_reporte = ie.id_reporte
+       WHERE r.id_area = ?
+       GROUP BY r.id_reporte`,
+      [idArea]
+    );
+    return rows;
+  } finally {
+    db.release();
+  }
+}
+
 module.exports = { findAll, findById, insertReporte, insertInfraccion, findByArea, getByObra };

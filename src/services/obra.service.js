@@ -22,4 +22,16 @@ async function findByUsuario(userId) {
   return obras;
 }
 
-module.exports = { list, get, create, update, remove, findByUsuario };
+async function getUsuariosByObraId(obraId) {
+  const usuarios = await model.getUsuariosByObraId(obraId);
+  if (!usuarios) throw { status: 404, message: 'Usuarios no encontrados' };
+  return usuarios;
+}
+
+async function getUsuariosByRol(obraId, rol) {
+  const usuarios = await model.getUsuariosByRol(obraId, rol);
+  if (!usuarios) throw { status: 404, message: 'Usuarios no encontrados' };
+  return usuarios;
+}
+
+module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol };

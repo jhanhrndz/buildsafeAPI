@@ -48,4 +48,23 @@ async function findByUsuario(req, res, next) {
   }
 }
 
-module.exports = { list, get, create, update, remove, findByUsuario };
+async function getUsuariosByObraId(req, res, next) {
+  try {
+    const { id_obra } = req.params;
+    const usuarios = await svc.getUsuariosByObraId(id_obra);
+    res.json(usuarios);
+  } catch (error) {
+    next(error);
+  }
+}
+async function getUsuariosByRol(req, res, next) {
+  try {
+    const usuarios = await svc.getUsuariosByRol(req.params.id, req.params.rol);
+    res.json(usuarios);
+  } catch (e) {
+    next(e);
+  }
+}
+
+
+module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol };
