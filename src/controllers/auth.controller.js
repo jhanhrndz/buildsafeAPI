@@ -23,8 +23,8 @@ if (!admin.apps.length) admin.initializeApp(firebaseConfig);
 // Registro local
 async function register(req, res, next) {
   try {
-    const id_usuario = await svcRegister(req.body);
-    res.status(201).json({ id_usuario });
+    const { token, user } = await svcRegister(req.body); // Cambiar aquí
+    res.status(201).json({ token, user });
   } catch (err) {
     next(err);
   }

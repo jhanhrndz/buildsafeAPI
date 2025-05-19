@@ -15,13 +15,58 @@ async function registerLocal({
   telefono,
   global_role,
 }) {
-  // crea y retorna el id
-  const id = await usuarioModel.createLocal({
-    usuario,
-    hash: await bcrypt.hash(contrasena, 10),
-    documento, nombres, apellidos, correo, telefono, global_role
-  });
-  return id;
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    // Crear usuario
+    const id = await usuarioModel.createLocal({
+      usuario,
+      hash: await bcrypt.hash(contrasena, 10),
+      documento, 
+      nombres, 
+      apellidos, 
+      correo, 
+      telefono, 
+      global_role
+    });
+
+    // Obtener usuario completo
+    const user = await usuarioModel.findById(id);
+
+    // Generar JWT (igual que en login)
+    const payload = { 
+      id: user.id_usuario, 
+      role: user.global_role,
+      provider: "local" 
+    };
+    const token = jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "8h" }
+    );
+
+    await connection.commit();
+
+    return {
+      token,
+      user: {
+        id_usuario: user.id_usuario,
+        usuario: user.usuario,
+        nombres: user.nombres,
+        apellidos: user.apellidos,
+        correo: user.correo,
+        global_role: user.global_role,
+        auth_provider: "local"
+      }
+    };
+    
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 }
 
 // Login local
