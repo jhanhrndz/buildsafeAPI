@@ -123,6 +123,9 @@ async function loginWithGoogle(firebaseToken) {
   const decoded = await verifyFirebaseToken(firebaseToken);
   const { uid, email, name, picture } = decoded;
 
+  const userRecord = await admin.auth().getUser(uid);
+  const phone = userRecord.phoneNumber || null; 
+
   // Validar campos esenciales
   if (!email || !uid) {
     throw { status: 400, message: "El token no contiene información válida" };
@@ -163,6 +166,7 @@ async function loginWithGoogle(firebaseToken) {
         nombres: primerNombre,
         apellidos: resto.join(" ") || " ",
         correo: email,
+        telefono: phone,
         googleId: uid,
         global_role: "coordinador", // Rol por defecto configurable desde ENV
       };
@@ -193,6 +197,8 @@ async function loginWithGoogle(firebaseToken) {
         nombres: user.nombres,
         apellidos: user.apellidos,
         correo: user.correo,
+        telefono: user.telefono,
+        documento: user.documento,
         global_role: user.global_role,
         auth_provider: "google",
       },

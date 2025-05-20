@@ -97,16 +97,17 @@ async function createGoogle(data) {
   try {
     const query = `
       INSERT INTO usuario 
-      (usuario, documento, nombres, apellidos, correo, google_id, global_role, auth_provider)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'google')
+      (usuario, documento, nombres, apellidos, correo, telefono, google_id, global_role, auth_provider)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'google')
     `;
 
     const [result] = await db.query(query, [
       data.usuario,
-      data.documento || "N/A",
+      data.documento || "",
       data.nombres,
       data.apellidos,
       data.correo,
+      data.telefono,
       data.googleId,
       data.global_role,
     ]);
