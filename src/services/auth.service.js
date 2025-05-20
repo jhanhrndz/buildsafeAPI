@@ -148,7 +148,7 @@ async function loginWithGoogle(firebaseToken) {
         apellidos: resto.join(" ") || " ",
         correo: email,
         googleId: uid,
-        global_role: "supervisor", // Rol por defecto configurable desde ENV
+        global_role: "coordinador", // Rol por defecto configurable desde ENV
       };
       
       const idUsuario = await usuarioModel.createGoogle(nuevoUsuario);
