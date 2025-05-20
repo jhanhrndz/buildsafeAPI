@@ -1,3 +1,4 @@
+//src/services/preview.service.js
 const PreviewModel = require('../models/preview.model');
 
 async function analyzeImage(file) {

@@ -1,3 +1,4 @@
+//src/controllers/obra.controller.js
 const svc = require("../services/obra.service");
 
 async function list(req, res, next) {
@@ -66,5 +67,13 @@ async function getUsuariosByRol(req, res, next) {
   }
 }
 
+async function getObrasByUsuario(req, res, next) {
+  try {
+    const obras = await svc.getObrasByUsuario(req.params.id);
+    res.json(obras);
+  } catch (e) {
+    next(e);
+  }
+}
 
-module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol };
+module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol, getObrasByUsuario };

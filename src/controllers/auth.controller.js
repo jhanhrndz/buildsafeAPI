@@ -1,3 +1,4 @@
+//src/controllers/auth.controller.js
 const authService = require('../services/auth.service');
 const bcrypt = require("bcrypt");
 const admin = require("firebase-admin");

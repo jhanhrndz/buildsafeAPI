@@ -1,3 +1,4 @@
+//usuario.routes.js
 const router = require("express").Router();
 const ctrl = require("../controllers/usuario.controller");
 const { authenticateToken } = require("../middlewares/auth.middleware");

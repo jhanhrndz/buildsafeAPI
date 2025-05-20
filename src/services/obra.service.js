@@ -1,3 +1,4 @@
+//src/services/obra.service.js
 const model = require('../models/obra.model');
 
 async function list() { return await model.findAll(); }
@@ -34,4 +35,10 @@ async function getUsuariosByRol(obraId, rol) {
   return usuarios;
 }
 
-module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol };
+async function getObrasByUsuario(userId) {
+  const obras = await model.findObrasByUsuario(userId);
+  if (!obras) throw { status: 404, message: 'Obras no encontradas' };
+  return obras;
+}
+
+module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol, getObrasByUsuario };

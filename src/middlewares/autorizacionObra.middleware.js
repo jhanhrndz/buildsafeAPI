@@ -1,3 +1,5 @@
+//src/middlewares/autorizacionObra.middleware.js
+
 // verifica que req.user.id esté asignado a obra con cierto role
 const connect = require("../config/db");
 module.exports = (requiredRole) => async (req, res, next) => {

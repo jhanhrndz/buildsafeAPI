@@ -1,3 +1,4 @@
+//src/middlewares/error.middleware.js
 module.exports = (err, req, res, next) => {
   console.error(err); // O guarda en tu logger
   const status = err.status || 500;

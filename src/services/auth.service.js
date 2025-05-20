@@ -1,3 +1,4 @@
+//src/services/auth.service.js
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const admin = require("firebase-admin");
@@ -76,7 +77,7 @@ async function loginLocal(usuario, contrasena) {
   const ok = await bcrypt.compare(contrasena, user.contrasena_hashed);
   if (!ok) throw { status: 401, message: "Credenciales inválidas" };
 
-  const payload = { id: user.id_usuario, role: user.global_role };
+  const payload = user;
   const token   = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "8h" });
 
   // Devuelve también datos mínimos de usuario

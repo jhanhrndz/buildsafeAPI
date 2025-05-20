@@ -1,3 +1,4 @@
+//src/controllers/camara.controller.js
 const CamaraService = require('../services/camara.service');
 
 const getAllCamaras = async (req, res, next) => {

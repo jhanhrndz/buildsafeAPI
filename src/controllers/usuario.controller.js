@@ -1,3 +1,4 @@
+//src/controllers/usuario.controller.js
 const svc = require('../services/usuario.service');
 
 async function list(req, res, next) {

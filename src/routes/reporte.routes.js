@@ -1,3 +1,4 @@
+//src/routes/reporte.routes.js
 const router = require('express').Router();
 const ReporteController = require('../controllers/reporte.controller');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');

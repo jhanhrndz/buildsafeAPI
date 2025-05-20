@@ -1,3 +1,4 @@
+//src/services/camara.service.js
 const CamaraModel = require('../models/camara.model');
 
 const getAllCamaras = async () => {

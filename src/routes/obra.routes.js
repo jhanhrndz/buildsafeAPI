@@ -1,3 +1,4 @@
+//src/routes/obra.routes.js
 const r = require('express').Router();
 const ctrl = require('../controllers/obra.controller');
 const { authenticateToken } = require('../middlewares/auth.middleware');
@@ -7,7 +8,8 @@ const { verificarRol } = require('../middlewares/verificarrol.middleware');
 
 
 // 2) Rutas de solo lectura (cualquier usuario autenticado)
-r.get('/', ctrl.list);                            // SELECT * FROM obra
+r.get('/', ctrl.list);    
+r.get('/mis-obras', ctrl.getObrasByUsuario)                        // SELECT * FROM obra
 r.get('/:id', ctrl.get);                          // SELECT * FROM obra WHERE id_obra = :id
 r.get('/usuario/:id', ctrl.findByUsuario); // SELECT * FROM obra WHERE id_coordinador = :id
 

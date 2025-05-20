@@ -11,6 +11,23 @@ async function findAll() {
   }
 }
 
+async function findObrasByUsuario(userId) {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT DISTINCT o.* 
+      FROM obra o
+      LEFT JOIN obra_usuario ou ON o.id_obra = ou.id_obra
+      WHERE ou.id_usuario = ? OR o.id_coordinador = ?
+    `, [userId, userId]);
+
+    return rows;
+  } finally {
+    connection.release();
+  }
+}
+
+
 async function findById(id) {
   const connection = await pool.getConnection();
   try {
@@ -145,4 +162,5 @@ module.exports = {
   findByUsuario,
   getUsuariosByObraId,
   getUsuariosByRol,
+  findObrasByUsuario
 };
