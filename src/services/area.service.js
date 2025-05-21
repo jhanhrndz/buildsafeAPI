@@ -11,6 +11,12 @@ async function getAreaById(id) {
   return area;
 }
 
+async function getAreasByObra(id_obra) {
+  const areas = await model.findByObraId(id_obra);
+  if (!areas) throw { status: 404, message: 'Áreas no encontradas para la obra' };
+  return areas;
+}
+
 async function createArea(data) {
   // podrías validar que obra exista, supervisor exista, etc.
   return await model.create(data);
@@ -26,28 +32,17 @@ async function deleteArea(id) {
   if (affected === 0) throw { status: 404, message: 'Área no encontrada' };
 }
 
-async function getAreaByCamera(id_camara) {
-  const area = await model.getAreaByCamera(id_camara);
-  if (!area) throw { status: 404, message: 'Área no encontrada para la cámara' };
+
+
+async function getAreasByObra(id_obra) {
+  const areas = await model.findByObraId(id_obra);
+  if (!areas) throw { status: 404, message: 'Áreas no encontradas para la obra' };
+  return areas;
+}
+async function getAreaAsignadaPorUsuario(id_usuario, id_obra) {
+  const area = await model.findAreaAsignadaPorUsuario(id_usuario, id_obra);
+  if (!area) throw { status: 404, message: 'Área no encontrada' };
   return area;
 }
 
-async function updateSupervisorArea(id_area, id_usuario) {
-  // Validar que el usuario exista
-  const user = await model.findById(id_usuario);
-  if (!user) {
-    throw { status: 404, message: "Usuario no encontrado" };
-  }
-
-  // Validar que el área exista
-  const area = await model.findById(id_area);
-  if (!area) {
-    throw { status: 404, message: "Área no encontrada" };
-  }
-
-  const affected = await model.updateSupervisorArea(id_area, id_usuario);
-  if (affected === 0) {
-    throw { status: 500, message: "Error al actualizar supervisor" };
-  }
-}
-module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreaByCamera, updateSupervisorArea };
+module.exports = { getAllAreas, getAreaById, createArea, updateArea, deleteArea, getAreasByObra };

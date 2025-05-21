@@ -5,7 +5,6 @@ const { authenticateToken } = require('../middlewares/auth.middleware');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');
 
 // 1) Aplica primero el JWT a **todas** las rutas de obra
-r.use(authenticateToken);
 
 // 2) Rutas de solo lectura (cualquier usuario autenticado)
 r.get('/', ctrl.list);    

@@ -1,34 +1,35 @@
 // src/controllers/obraUsuario.controller.js
 const obraUsuarioService = require('../services/obraUsuario.service');
 
-async function getSupervisors(req, res, next) {
-  try {
-    const { obraId } = req.params;
-    const list = await obraUsuarioService.getSupervisorsOfObra(+obraId);
-    res.json(list);
-  } catch (err) {
-    next(err);
-  }
-}
-
 async function assignSupervisor(req, res, next) {
   try {
-    const { obraId, usuario } = req.body;
-    await obraUsuarioService.assignSupervisorToObra({ obraId: +obraId, usuario });
+    const { obraId, usuarioId } = req.body;
+    await obraUsuarioService.addSupervisorToObra(+obraId, +usuarioId);
     res.status(201).json({ message: 'Supervisor asignado' });
   } catch (err) {
     next(err);
   }
 }
 
-async function removeSupervisor(req, res, next) {
+
+async function unassignSupervisor(req, res, next) {
   try {
-    const { obraId, supervisorId } = req.body;
-    await obraUsuarioService.removeSupervisorFromObra(+obraId, +supervisorId);
-    res.json({ message: 'Supervisor removido' });
+    const { obraId, usuarioId } = req.body;
+    const removed = await obraUsuarioService.removeSupervisorFromObra(+obraId, +usuarioId);
+    res.json({ removed });
   } catch (err) {
     next(err);
   }
 }
 
-module.exports = { getSupervisors, assignSupervisor, removeSupervisor };
+async function getSupervisors(req, res, next) {
+  try {
+    const { obraId } = req.params;
+    const list = await obraUsuarioService.getSupervisorsForObra(+obraId);
+    res.json(list);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getSupervisors, assignSupervisor, unassignSupervisor };
