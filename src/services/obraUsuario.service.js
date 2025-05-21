@@ -5,17 +5,22 @@ async function getSupervisorsOfObra(obraId) {
   return obraUsuarioModel.findByObraId(obraId);
 }
 
-async function assignSupervisorToObra({ obraId, usuario }) {
-  // usuario puede ser username o email
-  return obraUsuarioModel.insertSupervisor(obraId, usuario);
+
+async function addSupervisorToObra(obraId, usuarioId) {
+  return obraUsuarioModel.assignSupervisor(obraId, usuarioId);
 }
 
-async function removeSupervisorFromObra(obraId, supervisorId) {
-  return obraUsuarioModel.deleteSupervisor(obraId, supervisorId);
+async function removeSupervisorFromObra(obraId, usuarioId) {
+  return obraUsuarioModel.deleteSupervisor(obraId, usuarioId);
+}
+
+async function getSupervisorsForObra(obraId) {
+  return obraUsuarioModel.findSupervisorsWithAreas(obraId);
 }
 
 module.exports = {
   getSupervisorsOfObra,
-  assignSupervisorToObra,
-  removeSupervisorFromObra
+  addSupervisorToObra,
+  getSupervisorsForObra,
+  removeSupervisorFromObra,
 };

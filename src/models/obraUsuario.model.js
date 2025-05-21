@@ -1,47 +1,122 @@
-// src/models/obraUsuario.model.js
 const { pool } = require('../config/db');
 
+/**
+ * Lista todos los usuarios de una obra (coordinador, supervisores, invitados)
+ */
 async function findByObraId(obraId) {
-  const connection = await pool.getConnection();
+  const c = await pool.getConnection();
   try {
-    const [rows] = await connection.query(
-      `SELECT u.id_usuario, u.usuario, u.nombres, u.apellidos
-       FROM usuario u
-       JOIN obra_usuario ou ON u.id_usuario = ou.id_usuario
+    const [rows] = await c.query(
+      `SELECT 
+         ou.id_obra_usuario,
+         ou.role,
+         u.id_usuario,
+         u.usuario,
+         u.nombres,
+         u.apellidos,
+         u.correo
+       FROM obra_usuario ou
+       JOIN usuario u 
+         ON ou.id_usuario = u.id_usuario
        WHERE ou.id_obra = ?`,
       [obraId]
     );
     return rows;
   } finally {
-    connection.release();
+    c.release();
   }
 }
 
-async function insertSupervisor(obraId, usuarioId) {
-  const connection = await pool.getConnection();
+/**
+ * Asigna un supervisor a la obra.
+ * Lanza 400 si ya existe esa tupla.
+ */
+async function assignSupervisor(obraId, usuarioId) {
+  const c = await pool.getConnection();
   try {
-    await connection.query(
-      `INSERT INTO obra_usuario (id_obra, id_usuario)
-       VALUES (?, ?)`,
+    const [existing] = await c.query(
+      `SELECT 1
+         FROM obra_usuario
+        WHERE id_obra  = ?
+          AND id_usuario = ?
+          AND role      = 'supervisor'`,
       [obraId, usuarioId]
     );
+    if (existing.length) {
+      throw { status: 400, message: 'Supervisor ya asignado a esta obra' };
+    }
+    const [res] = await c.query(
+      `INSERT INTO obra_usuario
+         (id_obra, id_usuario, role, accepted_at, created_at)
+       VALUES (?, ?, 'supervisor', NOW(), NOW())`,
+      [obraId, usuarioId]
+    );
+    return res.insertId;
   } finally {
-    connection.release();
+    c.release();
   }
 }
 
+/**
+ * Elimina la asignación de supervisor de la obra.
+ */
 async function deleteSupervisor(obraId, usuarioId) {
-  const connection = await pool.getConnection();
+  const c = await pool.getConnection();
   try {
-    const [res] = await connection.query(
+    const [res] = await c.query(
       `DELETE FROM obra_usuario
-       WHERE id_obra = ? AND id_usuario = ?`,
+        WHERE id_obra   = ?
+          AND id_usuario = ?
+          AND role      = 'supervisor'`,
       [obraId, usuarioId]
     );
     return res.affectedRows;
   } finally {
-    connection.release();
+    c.release();
   }
 }
 
-module.exports = { findByObraId, insertSupervisor, deleteSupervisor };
+/**
+ * Lista todos los supervisores de una obra
+ * junto con sus áreas (campo area.id_usuario).
+ */
+async function findSupervisorsWithAreas(obraId) {
+  const c = await pool.getConnection();
+  try {
+    const [rows] = await c.query(
+      `
+      SELECT
+        u.id_usuario,
+        u.nombres,
+        u.apellidos,
+        u.correo,
+        COALESCE(JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'id_area', a.id_area,
+            'nombre_area', a.nombre
+          )
+        ), JSON_ARRAY()) AS areas
+      FROM obra_usuario ou
+      JOIN usuario u
+        ON ou.id_usuario = u.id_usuario
+      LEFT JOIN area a
+        ON a.id_obra   = ou.id_obra
+       AND a.id_usuario = u.id_usuario
+      WHERE ou.id_obra = ?
+        AND ou.role = 'supervisor'
+      GROUP BY u.id_usuario, u.nombres, u.apellidos, u.correo
+      `,
+      [obraId]
+    );
+    return rows;
+  } finally {
+    c.release();
+  }
+}
+
+module.exports = {
+  findByObraId,
+  assignSupervisor,
+  deleteSupervisor,
+  findSupervisorsWithAreas
+};
