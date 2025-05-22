@@ -4,7 +4,7 @@ const { authenticateToken } = require("../middlewares/auth.middleware");
 const { verificarRol } = require("../middlewares/verificarrol.middleware");
 
 // Todas requieren token
-//router.use(authenticateToken);
+router.use(authenticateToken);
 
 // Cualquiera autenticado (coordinador o supervisor) puede ver
 router.get("/", ctrl.getAllAreas);
