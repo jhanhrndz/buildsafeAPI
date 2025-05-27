@@ -5,6 +5,9 @@ const router = express.Router();
 const CamaraController = require('../controllers/camara.controller');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');
 
+//aun no terminado del todo
+//api.routes importa este camara.routes como /camaras/+ruta de aqui
+
 // GET → Listar todas las cámaras (cualquiera autenticado)
 router.get('/', CamaraController.getAllCamaras);
 

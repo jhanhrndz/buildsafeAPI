@@ -1,3 +1,4 @@
+//area.model.js
 const { pool } = require("../config/db");
 
 /**
@@ -35,7 +36,8 @@ async function findAll() {
 async function findById(id_area) {
   const c = await pool.getConnection();
   try {
-    const [rows] = await c.query(`
+    const [rows] = await c.query(
+      `
       SELECT 
         a.*,
         o.nombre        AS nombre_obra,
@@ -48,7 +50,9 @@ async function findById(id_area) {
       LEFT JOIN usuario u 
         ON a.id_usuario = u.id_usuario
       WHERE a.id_area = ?
-    `, [id_area]);
+    `,
+      [id_area]
+    );
     return rows[0] || null;
   } finally {
     c.release();
@@ -61,7 +65,8 @@ async function findById(id_area) {
 async function findByObraId(id_obra) {
   const c = await pool.getConnection();
   try {
-    const [rows] = await c.query(`
+    const [rows] = await c.query(
+      `
       SELECT 
         a.*,
         o.nombre        AS nombre_obra,
@@ -75,7 +80,9 @@ async function findByObraId(id_obra) {
         ON a.id_usuario = u.id_usuario
       WHERE a.id_obra = ?
       ORDER BY a.id_area
-    `, [id_obra]);
+    `,
+      [id_obra]
+    );
     return rows;
   } finally {
     c.release();
@@ -88,11 +95,14 @@ async function findByObraId(id_obra) {
 async function create({ id_obra, nombre, descripcion, id_usuario }) {
   const c = await pool.getConnection();
   try {
-    const [res] = await c.query(`
+    const [res] = await c.query(
+      `
       INSERT INTO area 
         (id_obra, nombre, descripcion, id_usuario)
       VALUES (?, ?, ?, ?)
-    `, [id_obra, nombre, descripcion, id_usuario]);
+    `,
+      [id_obra, nombre, descripcion, id_usuario]
+    );
     return res.insertId;
   } finally {
     c.release();
@@ -105,13 +115,16 @@ async function create({ id_obra, nombre, descripcion, id_usuario }) {
 async function updateById(id_area, { nombre, descripcion, id_usuario }) {
   const c = await pool.getConnection();
   try {
-    const [res] = await c.query(`
+    const [res] = await c.query(
+      `
       UPDATE area
          SET nombre      = ?,
              descripcion = ?,
              id_usuario  = ?
        WHERE id_area = ?
-    `, [nombre, descripcion, id_usuario, id_area]);
+    `,
+      [nombre, descripcion, id_usuario, id_area]
+    );
     return res.affectedRows;
   } finally {
     c.release();
@@ -124,10 +137,9 @@ async function updateById(id_area, { nombre, descripcion, id_usuario }) {
 async function deleteById(id_area) {
   const c = await pool.getConnection();
   try {
-    const [res] = await c.query(
-      `DELETE FROM area WHERE id_area = ?`,
-      [id_area]
-    );
+    const [res] = await c.query(`DELETE FROM area WHERE id_area = ?`, [
+      id_area,
+    ]);
     return res.affectedRows;
   } finally {
     c.release();
@@ -173,5 +185,5 @@ module.exports = {
   create,
   updateById,
   deleteById,
-  findAreaAsignadaPorUsuario
+  findAreaAsignadaPorUsuario,
 };
