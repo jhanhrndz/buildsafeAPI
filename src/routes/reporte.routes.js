@@ -3,6 +3,9 @@ const router = require('express').Router();
 const ReporteController = require('../controllers/reporte.controller');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');
 
+//aun no terminado del todo
+//api.routes importa este reporte.routes como /reportes/+ruta de aqui
+
 // Listar y ver detalles (roles supervisor/coordinador)
 router.get('/', ReporteController.getAllReportes);
 router.get('/:id', ReporteController.getReporteById);

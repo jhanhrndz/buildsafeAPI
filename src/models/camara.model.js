@@ -23,8 +23,8 @@ const getActiveBySupervisor = async (id_usuario) => {
     const [rows] = await connection.query(`
       SELECT c.id_camara, c.ip_stream
       FROM camara c
-      JOIN area_supervisor a_s ON c.id_area = a_s.id_area
-      WHERE c.estado = 'activa' AND a_s.id_usuario = ?
+      JOIN area a ON c.id_area = a.id_area
+      WHERE c.estado = 'activa' AND a.id_usuario = ?
     `, [id_usuario]);
     return rows;
   } finally {

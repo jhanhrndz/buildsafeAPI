@@ -1,8 +1,10 @@
+//area.routes.js
 const router = require("express").Router();
 const ctrl = require("../controllers/area.controller");
 const { authenticateToken } = require("../middlewares/auth.middleware");
 const { verificarRol } = require("../middlewares/verificarrol.middleware");
 
+//api.routes importa este area.routes como /areas/+ruta de aqui
 // Todas requieren token
 router.use(authenticateToken);
 
