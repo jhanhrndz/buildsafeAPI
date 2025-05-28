@@ -37,4 +37,10 @@ async function findAll(){
   return await usuarioModel.findAll();
 }
 
-module.exports = { listUsers, getUserById, updateUser, deleteUser, findAll };
+async function findByEmail(email) {
+  const user = await usuarioModel.findByEmail(email);
+  if (!user) throw { status: 404, message: "Usuario no encontrado" };
+  return user; // Devuelve TODO el objeto usuario
+}
+
+module.exports = { listUsers, getUserById, updateUser, deleteUser, findAll, findByEmail };

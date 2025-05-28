@@ -90,12 +90,21 @@ async function findSupervisorsWithAreas(obraId) {
         u.nombres,
         u.apellidos,
         u.correo,
-        COALESCE(JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id_area', a.id_area,
-            'nombre_area', a.nombre
-          )
-        ), JSON_ARRAY()) AS areas
+        COALESCE(
+          CONCAT(
+            '[',
+            GROUP_CONCAT(
+              DISTINCT
+              CONCAT(
+                '{"id_area":', a.id_area, ', "nombre_area":"', REPLACE(a.nombre, '"', '\\"'), '"}'
+              )
+              ORDER BY a.id_area
+              SEPARATOR ','
+            ),
+            ']'
+          ),
+          '[]'
+        ) AS areas
       FROM obra_usuario ou
       JOIN usuario u
         ON ou.id_usuario = u.id_usuario
@@ -108,7 +117,12 @@ async function findSupervisorsWithAreas(obraId) {
       `,
       [obraId]
     );
-    return rows;
+    // Convertir el string JSON a objeto JavaScript
+    const parsedRows = rows.map(row => ({
+      ...row,
+      areas: JSON.parse(row.areas)
+    }));
+    return parsedRows;
   } finally {
     c.release();
   }
