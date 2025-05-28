@@ -1,4 +1,5 @@
 // src/models/usuario.model.js
+
 const { pool } = require("../config/db"); // Importa el pool
 
 async function findAll() {
