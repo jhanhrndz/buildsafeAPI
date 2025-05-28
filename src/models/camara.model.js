@@ -80,6 +80,22 @@ const getById = async (id) => {
   }
 };
 
+const getByArea = async (id_area) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
+      FROM camara c
+      JOIN area a ON c.id_area = a.id_area
+      JOIN obra o ON a.id_obra = o.id_obra
+      WHERE c.id_area = ?
+    `, [id_area]);
+    return rows;
+  } finally {
+    connection.release();
+  }
+};
+
 const create = async ({ id_area, ip_stream, nombre, estado }) => {
   const connection = await pool.getConnection();
   try {
@@ -140,6 +156,22 @@ const deleteById = async (id) => {
   }
 };
 
+const getByObra = async (id_obra) => {
+  const connection = await pool.getConnection();
+  try {
+    const [rows] = await connection.query(`
+      SELECT c.*, a.nombre AS nombre_area, o.nombre AS nombre_obra
+      FROM camara c
+      JOIN area a ON c.id_area = a.id_area
+      JOIN obra o ON a.id_obra = o.id_obra
+      WHERE o.id_obra = ?
+    `, [id_obra]);
+    return rows;
+  } finally {
+    connection.release();
+  }
+};
+
 module.exports = {
   getAll,
   getById,
@@ -149,5 +181,7 @@ module.exports = {
   updateLastConnection,
   getAllActive,
   getActiveByArea,
-  getActiveBySupervisor
+  getActiveBySupervisor,
+  getByArea,
+  getByObra
 };
