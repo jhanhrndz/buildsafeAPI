@@ -204,6 +204,7 @@ async function loginWithGoogle(firebaseToken) {
         telefono: user.telefono,
         documento: user.documento,
         global_role: user.global_role,
+        picture: picture,
         auth_provider: "google",
       },
     };
