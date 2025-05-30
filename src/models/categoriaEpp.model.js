@@ -77,10 +77,24 @@ async function deleteById(id) {
   }
 }
 
+async function findByName(nombre, connection = null) {
+  const conn = connection || await pool.getConnection();
+  try {
+    const [rows] = await conn.query(
+      `SELECT id_epp AS id, nombre FROM categoria_epp WHERE nombre = ? LIMIT 1`,
+      [nombre]
+    );
+    return rows[0] || null;
+  } finally {
+    if (!connection) conn.release();
+  }
+}
+
 module.exports = {
   findAll,
   findById,
   create,
   updateById,
-  deleteById
+  deleteById,
+  findByName,
 };
