@@ -68,7 +68,7 @@ async function createReporte(req, res) {
 
 async function getReportesByArea(req, res, next) {
   try {
-    const list = await ReporteService.getReportesByArea(req.params.id);
+    const list = await service.getReportesByArea(req.params.id); // <--- usa 'service'
     res.json(list);
   } catch (err) {
     next(err);
@@ -77,9 +77,12 @@ async function getReportesByArea(req, res, next) {
 
 async function getReportesByObra(req, res, next) {
   try {
-    const list = await ReporteModel.getByObra(req.params.id);
+    // Usa el servicio, pero NO lances error si no hay reportes
+    const list = await service.getReportesByObra(req.params.id);
     res.json(list);
   } catch (err) {
+    // Si el error es "no hay reportes", responde array vacío
+    if (err.status === 404) return res.json([]);
     next(err);
   }
 }
@@ -156,6 +159,16 @@ async function detectInfracciones(req, res) {
   }
 }
 
+async function updateEstadoReporte(req, res) {
+  try {
+    const { estado } = req.body;
+    await service.updateEstadoReporte(req.params.id, estado);
+    res.json({ message: 'Estado actualizado' });
+  } catch (error) {
+    res.status(error.status || 500).json({ error: error.message || 'Error al actualizar estado' });
+  }
+}
+
 module.exports = {
   getAllReportes,
   getReporteById,
@@ -167,4 +180,5 @@ module.exports = {
   updateReporte,
   deleteReporte,
   detectInfracciones,
+  updateEstadoReporte,
 };

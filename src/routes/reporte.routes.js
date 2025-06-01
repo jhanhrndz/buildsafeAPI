@@ -4,9 +4,11 @@ const ReporteController = require('../controllers/reporte.controller');
 const { verificarRol } = require('../middlewares/verificarrol.middleware');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
+const { authenticateToken } = require('../middlewares/auth.middleware');
 
 //aun no terminado del todo
 //api.routes importa este reporte.routes como /reportes/+ruta de aqui
+
 
 // Listar y ver detalles (roles supervisor/coordinador)
 router.get('/', ReporteController.getAllReportes);
@@ -19,8 +21,9 @@ router.put(
   upload.single('imagen'), // permite actualizar imagen
   ReporteController.updateReporte
 );
+router.patch('/:id/estado', ReporteController.updateEstadoReporte);
 router.get('/area/:id', ReporteController.getReportesByArea);
-router.get('/obra/:obraId', ReporteController.getReportesByObra);
+router.get('/obra/:id', ReporteController.getReportesByObra);
 router.get('/usuario/:id_usuario', ReporteController.getReportesByUsuario);
 router.get('/obras-coordinador/:id_coordinador', ReporteController.getReportesByCoordinador);
 router.delete('/:id', ReporteController.deleteReporte);
