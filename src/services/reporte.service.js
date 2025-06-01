@@ -26,7 +26,7 @@ async function getReportesByArea(idArea) {
 
 async function getReportesByObra(idObra) {
   const list = await model.getByObra(idObra);
-  if (!list.length) throw { status: 404, message: 'No hay reportes en esa obra' };
+  // NO lances error, solo retorna []
   return list;
 }
 
@@ -90,6 +90,12 @@ async function createReporteCompleto({ id_area, id_camara, id_usuario, descripci
   }
 }
 
+async function updateEstadoReporte(id, estado) {
+  const ok = await model.updateEstado(id, estado);
+  if (!ok) throw { status: 404, message: 'Reporte no encontrado' };
+  return ok;
+}
+
 module.exports = {
   getAllReportes,
   getReporteById,
@@ -101,4 +107,5 @@ module.exports = {
   updateReporte,
   deleteReporte,
   createReporteCompleto,
+  updateEstadoReporte,
 };
