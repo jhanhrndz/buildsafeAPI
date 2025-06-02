@@ -36,7 +36,7 @@ const getActiveByArea = async (id_area) => {
   const connection = await pool.getConnection();
   try {
     const [rows] = await connection.query(`
-      SELECT c.id_camara, c.ip_stream
+      SELECT c.id_camara, c.ip_stream, c.nombre
       FROM camara c
       WHERE c.estado = 'activa' AND c.id_area = ?
     `, [id_area]);
