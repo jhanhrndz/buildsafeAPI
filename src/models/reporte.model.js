@@ -242,6 +242,7 @@ async function getByObra(id_obra) {
         u.nombres AS usuario_nombres,
         u.apellidos AS usuario_apellidos,
         u.correo AS usuario_correo,
+        u.global_role AS usuario_global_role,
         GROUP_CONCAT(
           DISTINCT CONCAT(iepp.nombre, '::', cat.nombre)
           SEPARATOR '||'
@@ -270,7 +271,8 @@ async function getByObra(id_obra) {
         id: reporte.usuario_id,
         nombres: reporte.usuario_nombres,
         apellidos: reporte.usuario_apellidos,
-        correo: reporte.usuario_correo
+        correo: reporte.usuario_correo,
+        global_role: reporte.usuario_global_role
       };
       
       delete reporte.infracciones_data;
@@ -278,6 +280,7 @@ async function getByObra(id_obra) {
       delete reporte.usuario_nombres;
       delete reporte.usuario_apellidos;
       delete reporte.usuario_correo;
+      delete reporte.usuario_global_role;
       
       return { ...reporte, infracciones, usuario };
     });
