@@ -17,7 +17,7 @@ app.use(cors(
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Access-Control-Allow-Headers', 'Content-Type', 'Authorization']
 }
-));                        // Permitir CORS
+));
 app.use(express.json());                // Parsear JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parsear URL-encoded bodies
 app.use(morgan('dev'));                 // Logs HTTP (opcional)

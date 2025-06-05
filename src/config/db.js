@@ -9,18 +9,17 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10, // Ajusta según necesidad
+  connectionLimit: 10, 
   queueLimit: 0,
-  enableKeepAlive: true, // Mantiene la conexión activa
-  keepAliveInitialDelay: 0, // Inicia keep-alive inmediatamente
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
   connectTimeout: 60000, // 60 segundos para conectar
-  acquireTimeout: 60000, // 60 segundos para adquirir conexión
+  acquireTimeout: 60000, 
   idleTimeout: 60000, // Cierra conexiones inactivas después de 60s
-  timezone: "local", // Asegura la zona horaria correcta
-  charset: "utf8mb4", // Codificación correcta
+  timezone: "local",
+  charset: "utf8mb4", 
 });
 
-// Verifica la conexión al iniciar (opcional)
 pool
   .getConnection()
   .then((connection) => {

@@ -6,9 +6,7 @@ const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const { authenticateToken } = require('../middlewares/auth.middleware');
 
-//aun no terminado del todo
-//api.routes importa este reporte.routes como /reportes/+ruta de aqui
-
+router.use(authenticateToken); // Verifica token en todas las rutas
 
 // Listar y ver detalles (roles supervisor/coordinador)
 router.get('/', ReporteController.getAllReportes);
