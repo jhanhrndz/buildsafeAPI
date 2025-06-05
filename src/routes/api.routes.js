@@ -24,7 +24,6 @@ router.use('/infraccionEpps',   require('./infraccionEpp.routes'));
 router.use('/notifications',     require('./notification.routes'));
 
 // Integración Python
-router.use('/reportes/preview', require('./preview.routes')); //enviar archivo con reporte
 router.use('/stream',            require('./stream.routes'));
 
 // Manejo de errores
