@@ -1,44 +1,52 @@
-//src/services/obra.service.js
+// src/services/obra.service.js
 const model = require('../models/obra.model');
 
-async function list() { return await model.findAll(); }
-async function get(id) {
-  const o = await model.findById(id);
-  if (!o) throw { status: 404, message: 'Obra no encontrada' };
-  return o;
+async function list() { 
+  return await model.findAll(); 
 }
+
+async function get(id) {
+  return await model.findById(id); // Retorna null si no existe
+}
+
 async function create(data) {
   return await model.create(data);
 }
-async function update(id,data) {
-  await model.update(id,data);
+
+async function update(id, data) {
+  const updated = await model.update(id, data);
+  return updated; // Retorna false o 0 si no actualiza
 }
+
 async function remove(id) {
-  await model.remove(id);
+  const deleted = await model.remove(id);
+  return deleted; // Retorna false o 0 si no elimina
 }
 
 async function findByUsuario(userId) {
-  const obras = await model.findByUsuario(userId);
-  if (!obras) throw { status: 404, message: 'Obras no encontradas' };
-  return obras;
+  return await model.findByUsuario(userId); // Siempre retorna array
 }
 
 async function getUsuariosByObraId(obraId) {
-  const usuarios = await model.getUsuariosByObraId(obraId);
-  if (!usuarios) throw { status: 404, message: 'Usuarios no encontrados' };
-  return usuarios;
+  return await model.getUsuariosByObraId(obraId); // Siempre retorna array
 }
 
 async function getUsuariosByRol(obraId, rol) {
-  const usuarios = await model.getUsuariosByRol(obraId, rol);
-  if (!usuarios) throw { status: 404, message: 'Usuarios no encontrados' };
-  return usuarios;
+  return await model.getUsuariosByRol(obraId, rol); // Siempre retorna array
 }
 
 async function getObrasByUsuario(userId) {
-  const obras = await model.findObrasByUsuario(userId);
-  if (!obras) throw { status: 404, message: 'Obras no encontradas' };
-  return obras;
+  return await model.findObrasByUsuario(userId); // Siempre retorna array
 }
 
-module.exports = { list, get, create, update, remove, findByUsuario, getUsuariosByObraId, getUsuariosByRol, getObrasByUsuario };
+module.exports = { 
+  list, 
+  get, 
+  create, 
+  update, 
+  remove, 
+  findByUsuario, 
+  getUsuariosByObraId, 
+  getUsuariosByRol, 
+  getObrasByUsuario 
+};

@@ -8,51 +8,35 @@ async function getAllReportes() {
 }
 
 async function getReporteById(id) {
-  const rpt = await model.findById(id);
-  if (!rpt) throw { status: 404, message: 'Reporte no encontrado' };
-  return rpt;
+  return await model.findById(id); // Devuelve null si no existe
 }
 
 async function createReporte(data) {
-  // data: { id_area, id_camara, id_usuario, descripcion, estado, imagen_url }
   return await model.insertReporte(data);
 }
 
 async function getReportesByArea(idArea) {
-  const list = await model.findByArea(idArea);
-  if (!list.length) throw { status: 404, message: 'No hay reportes en esa área' };
-  return list;
+  return await model.findByArea(idArea); // Siempre devuelve array (vacio o con datos)
 }
 
 async function getReportesByObra(idObra) {
-  const list = await model.getByObra(idObra);
-  // NO lances error, solo retorna []
-  return list;
+  return await model.getByObra(idObra);
 }
 
 async function getReportesByUsuario(idUsuario) {
-  const list = await model.findByUsuario(idUsuario);
-  if (!list.length) throw { status: 404, message: 'No hay reportes para este usuario' };
-  return list;
+  return await model.findByUsuario(idUsuario); // Siempre devuelve array
 }
 
 async function getReportesByCoordinador(idCoordinador) {
-  const list = await model.findByCoordinador(idCoordinador);
-  if (!list.length) throw { status: 404, message: 'No hay reportes para este coordinador' };
-  return list;
+  return await model.findByCoordinador(idCoordinador); // Siempre devuelve array
 }
 
 async function updateReporte(id, data) {
-  // data: { descripcion, estado, imagen_url }
-  const ok = await model.updateReporte(id, data);
-  if (!ok) throw { status: 404, message: 'Reporte no encontrado' };
-  return ok;
+  return await model.updateReporte(id, data); // Devuelve false si no actualiza
 }
 
 async function deleteReporte(id) {
-  const ok = await model.deleteReporte(id);
-  if (!ok) throw { status: 404, message: 'Reporte no encontrado' };
-  return ok;
+  return await model.deleteReporte(id); // Devuelve false si no elimina
 }
 
 async function createReporteCompleto({ id_area, id_camara, id_usuario, descripcion, estado, imagen_url, infracciones }) {
@@ -60,17 +44,14 @@ async function createReporteCompleto({ id_area, id_camara, id_usuario, descripci
   try {
     await connection.beginTransaction();
 
-    // 1. Crear el reporte
     const id_reporte = await model.insertReporte(
       { id_area, id_camara, id_usuario, descripcion, estado, imagen_url },
       connection
     );
 
-    // 2. Insertar infracciones
     for (const inf of infracciones) {
       let id_epp = inf.id_epp;
       if (!id_epp && inf.nombre) {
-        // Busca el id_epp por nombre
         const cat = await CategoriaEppModel.findByName(inf.nombre, connection);
         id_epp = cat?.id || null;
       }
@@ -91,9 +72,7 @@ async function createReporteCompleto({ id_area, id_camara, id_usuario, descripci
 }
 
 async function updateEstadoReporte(id, estado) {
-  const ok = await model.updateEstado(id, estado);
-  if (!ok) throw { status: 404, message: 'Reporte no encontrado' };
-  return ok;
+  return await model.updateEstado(id, estado); // Devuelve false si no actualiza
 }
 
 module.exports = {
