@@ -145,14 +145,26 @@ async function detectInfracciones(req, res) {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    const allowedExtensions = ['jpg', 'jpeg', 'png'];
+    const ext = req.file.originalname.split('.').pop().toLowerCase();
+
+    if (!allowedExtensions.includes(ext)) {
+      return res.status(400).json({ error: 'Extensión no soportada' });
+    }
+
+    // Procede solo si la extensión es válida
     const form = new FormData();
-    form.append('file', req.file.buffer, { filename: req.file.originalname });
+    form.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype
+    });
 
     const pyRes = await axios.post(process.env.PYTHON_URL + '/detect', form, {
       headers: form.getHeaders(),
     });
 
     res.json({ infracciones: pyRes.data.infracciones || [] });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error detectando infracciones' });
